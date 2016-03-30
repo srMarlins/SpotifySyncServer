@@ -9,14 +9,11 @@ import java.util.List;
  * Created by jfowler on 3/29/16.
  */
 public class TrackQueue {
+
     private long queueId;
     private List<String> trackIdList = new ArrayList<>();
-    private Hashtable<String, Session> connectedAdminList = new Hashtable<>();
-    private Hashtable<String, Session> connectedUserList = new Hashtable<>();
-
-    public TrackQueue(long uniqueQueueId) {
-        queueId = uniqueQueueId;
-    }
+    private Hashtable<String, String> connectedAdminList = new Hashtable<>();
+    private Hashtable<String, String> connectedUserList = new Hashtable<>();
 
     public List<String> getTrackIdList() {
         return trackIdList;
@@ -34,15 +31,15 @@ public class TrackQueue {
         trackIdList.remove(trackId);
     }
 
-    public Hashtable<String, Session> getConnectedUserList() {
+    public Hashtable<String, String> getConnectedUserList() {
         return connectedUserList;
     }
 
-    public void setConnectedUserList(Hashtable<String, Session> connectedUserList) {
+    public void setConnectedUserList(Hashtable<String, String> connectedUserList) {
         this.connectedUserList = connectedUserList;
     }
 
-    public void addConnectedUser(String userId, Session session) {
+    public void addConnectedUser(String userId, String session) {
         connectedUserList.put(userId, session);
     }
 
@@ -50,15 +47,15 @@ public class TrackQueue {
         connectedUserList.remove(userId);
     }
 
-    public Hashtable<String, Session> getConnectedAdminList() {
+    public Hashtable<String, String> getConnectedAdminList() {
         return connectedAdminList;
     }
 
-    public void setConnectedAdminList(Hashtable<String, Session> connectedAdminList) {
+    public void setConnectedAdminList(Hashtable<String, String> connectedAdminList) {
         this.connectedAdminList = connectedAdminList;
     }
 
-    public void addAdmin(String userId, Session session) {
+    public void addAdmin(String userId, String session) {
         connectedAdminList.put(userId, session);
     }
 
@@ -66,8 +63,8 @@ public class TrackQueue {
         connectedAdminList.remove(userId);
     }
 
-    public Hashtable<String, Session> getAllConnectedUsers() {
-        Hashtable<String, Session> map = new Hashtable<>();
+    public Hashtable<String, String> getAllConnectedUsers() {
+        Hashtable<String, String> map = new Hashtable<>();
         map.putAll(connectedUserList);
         map.putAll(connectedAdminList);
         return map;
@@ -80,5 +77,9 @@ public class TrackQueue {
 
     public long getQueueId() {
         return queueId;
+    }
+
+    public void setQueueId(long queueId) {
+        this.queueId = queueId;
     }
 }
