@@ -1,9 +1,9 @@
 package com.andrewkingmarshall;
 
+import com.andrewkingmarshall.Models.SimpleUser;
 import com.andrewkingmarshall.Models.Track;
 import com.andrewkingmarshall.Models.TrackQueue;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
@@ -24,6 +24,7 @@ public class WebSocketEndPoint {
 
     @OnMessage
     public void getMessage(final String message, final Session session) {
+        System.out.println("Message received");
         /*if (!sessionQueueMap.contains(session)) {
             connectedSessions.add(session);
         }*/
@@ -36,20 +37,24 @@ public class WebSocketEndPoint {
 
     @OnClose
     public void closeConnectionHandler(Session session, CloseReason closeReason) {
+        System.out.println("Connection closed: " + session.getId());
         queueHandler.removeUserFromQueue(session);
     }
 
     public String[] splitCommandFromJson(String incomingCommand) {
         String[] commandAndJson = new String[2];
         commandAndJson[0] = incomingCommand.substring(0, incomingCommand.indexOf(DELIMITER) + 1);
-        commandAndJson[1] = incomingCommand.substring(incomingCommand.indexOf(DELIMITER), incomingCommand.length() + 1);
+        commandAndJson[1] = incomingCommand.substring(incomingCommand.indexOf(DELIMITER) + 1, incomingCommand.length());
         return commandAndJson;
     }
 
     public void handleMessage(Session session, String message) throws IOException {
         String[] commandAndJson = splitCommandFromJson(message);
-        String command = commandAndJson[0];
+        String command = commandAndJson[0].toLowerCase();
         String messageJson = commandAndJson[1];
+
+        System.out.print("Command: " + command + "\n");
+        System.out.print("Json: " + messageJson + "\n");
 
         switch (command) {
             case TrackQueueHandler.TrackQueueCommands.START_QUEUE:
@@ -68,21 +73,16 @@ public class WebSocketEndPoint {
     }
 
     private void startQueue(Session session, String json) throws IOException {
-        JsonObject jsonObject = new Gson().fromJson(json, JsonObject.class);
-        String userId = jsonObject.get("userId").getAsString();
-        if (queueHandler.startQueue(session, userId)) {
-            queueHandler.broadcastQueueUpdate(queueHandler.getConnectedQueue(session));
-        } else {
-            session.getBasicRemote().sendText(ERROR_COMMAND);
-        }
+        Gson gson = new Gson();
+        SimpleUser user = gson.fromJson(json, SimpleUser.class);
+        queueHandler.startQueue(session, user.getUserId());
+        queueHandler.broadcastQueueUpdate(queueHandler.getConnectedQueue(session));
     }
 
     private void joinQueue(Session session, String json) {
-        //TODO-Parse queueId from json
-        JsonObject jsonObject = new Gson().fromJson(json, JsonObject.class);
-        long queueId = jsonObject.get("queueId").getAsLong();
-        String userId = jsonObject.get("userId").getAsString();
-        queueHandler.addUser(session, queueId, userId);
+        Gson gson = new Gson();
+        SimpleUser user = gson.fromJson(json, SimpleUser.class);
+        queueHandler.addUser(session, user.getQueueId(), user.getUserId());
     }
 
     private void leaveQueue(Session session, String json) {
@@ -92,17 +92,14 @@ public class WebSocketEndPoint {
     private void addSong(Session session, String json) throws IOException {
         Gson gson = new Gson();
         Track track = gson.fromJson(json, Track.class);
-        if (queueHandler.sessionIsConnected(session)) {
-            TrackQueue usersQueue = queueHandler.getConnectedQueue(session);
-            if (usersQueue != null) {
-                usersQueue.addTrackId(track.getId());
-            } else {
-                session.getBasicRemote().sendText(ERROR_COMMAND);
-            }
-            queueHandler.broadcastQueueUpdate(usersQueue);
+        TrackQueue usersQueue = queueHandler.getConnectedQueue(session);
+
+        if (usersQueue != null) {
+            usersQueue.addTrackId(track.getId());
         } else {
             session.getBasicRemote().sendText(ERROR_COMMAND);
         }
+        queueHandler.broadcastQueueUpdate(usersQueue);
     }
 
     private void downVoteSong() {
