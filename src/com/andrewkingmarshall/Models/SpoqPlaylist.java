@@ -57,4 +57,26 @@ public class SpoqPlaylist {
             }
         }
     }
+
+    public boolean downVoteSpoqTrack(SpoqTrack track, SpoqUser user){
+        boolean trackFound = false;
+        for (SpoqTrack o : trackList) {
+            if (track.getTrackId().equals(o.getTrackId())) {
+                trackFound = true;
+                o.addDownVote(user);
+            }
+        }
+        return trackFound;
+    }
+
+    public boolean removeDownVote(SpoqTrack track, SpoqUser user){
+        boolean trackFound = false;
+        for (SpoqTrack o : trackList) {
+            if (track.getTrackId().equals(o.getTrackId())) {
+                trackFound = true;
+                o.removeDownVote(user);
+            }
+        }
+        return trackFound;
+    }
 }
