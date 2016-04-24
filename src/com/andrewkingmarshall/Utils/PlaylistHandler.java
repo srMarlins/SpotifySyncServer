@@ -45,12 +45,21 @@ public class PlaylistHandler {
         if(playlistExists(spoqUser.getConnectedPlaylistId())) {
             spoqUser.setAdmin(false);
             playlistMap.get(spoqUser.getConnectedPlaylistId()).addUser(spoqUser);
+        }else{
+            throw new PlaylistNotFoundException();
         }
     }
 
     public void leavePlaylist(SpoqUser spoqUser) throws PlaylistNotFoundException{
-        if(playlistExists(spoqUser.getConnectedPlaylistId())) {
-            playlistMap.get(spoqUser.getConnectedPlaylistId()).removeUser(spoqUser.getMusicServiceId());
+        int playlistId = spoqUser.getConnectedPlaylistId();
+        System.out.println("Leaving playlist: " + playlistId);
+        if(playlistExists(playlistId)) {
+            System.out.println("Removing user from playlist: " + playlistId);
+            playlistMap.get(playlistId).removeUser(spoqUser.getMusicServiceId());
+        }
+        if(playlistMap.get(playlistId).getUserMap().size() == 0){
+            System.out.println("Deleting playlist: " + playlistId);
+            removePlaylist(playlistId);
         }
     }
 

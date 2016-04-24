@@ -90,7 +90,8 @@ public class WebSocketEndPoint {
 
             successfulMessage = true;
         } catch (PlaylistNotFoundException e){
-            e.printStackTrace();
+            successfulMessage = false;
+            System.out.println("PlaylistNotFoundException");
         }
 
         return successfulMessage;
@@ -115,6 +116,9 @@ public class WebSocketEndPoint {
 
     private void leavePlaylist(Session session) throws PlaylistNotFoundException{
         SpoqUser user = sessionHandler.getUserFromSessionId(session.getId());
+        if (user == null){
+            return;
+        }
         playlistHandler.leavePlaylist(user);
         playlistHandler.removePlaylist(user.getConnectedPlaylistId());
         sessionHandler.removeSession(session.getId());
