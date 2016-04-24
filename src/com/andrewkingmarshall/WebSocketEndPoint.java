@@ -133,6 +133,7 @@ public class WebSocketEndPoint {
         Gson gson = new Gson();
         SpoqTrack track = gson.fromJson(json, SpoqTrack.class);
         SpoqUser user = sessionHandler.getUserFromSessionId(session.getId());
+        track.setTimeAdded(System.currentTimeMillis());
         playlistHandler.addTrack(user.getConnectedPlaylistId(), track);
     }
 
