@@ -1,4 +1,5 @@
 # Idea files
 .idea/*
 output/*
+out/*
 .DS_Store

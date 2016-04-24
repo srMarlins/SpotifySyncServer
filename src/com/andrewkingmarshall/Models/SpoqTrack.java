@@ -9,6 +9,7 @@ import java.util.List;
 public class SpoqTrack {
     private String trackId;
     private boolean skipped;
+    private long timeAdded;
     private List<SpoqUser> usersThatVoted;
 
     public String getTrackId() {
@@ -47,5 +48,13 @@ public class SpoqTrack {
                 setIterator.remove();
             }
         }
+    }
+
+    public long getTimeAdded() {
+        return timeAdded;
+    }
+
+    public void setTimeAdded(long timeAdded) {
+        this.timeAdded = timeAdded;
     }
 }
